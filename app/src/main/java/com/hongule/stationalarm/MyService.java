@@ -16,6 +16,9 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MyService extends Service {
 
     WindowManager wm;
@@ -43,21 +46,17 @@ public class MyService extends Service {
 
         params.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
         mView = inflate.inflate(R.layout.view_in_service, null);
-        final TextView textView = (TextView) mView.findViewById(R.id.textView);
-        final ImageButton bt =  (ImageButton) mView.findViewById(R.id.bt);
-        bt.setOnClickListener(new View.OnClickListener() {
+        final TextView _tex_station_name = (TextView) mView.findViewById(R.id.tex_station_name);
+        _tex_station_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bt.setImageResource(R.mipmap.ic_launcher_round);
-                textView.setText("on click!!");
-
                 Intent dialogIntent = new Intent(getApplication(), MainActivity.class);
                 dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(dialogIntent);
             }
         });
         // btn_img 에 android:filterTouchesWhenObscured="true" 속성 추가하면 터치리스너가 동작한다.
-        bt.setOnTouchListener(new View.OnTouchListener() {
+        _tex_station_name.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch (motionEvent.getAction()){
@@ -75,6 +74,7 @@ public class MyService extends Service {
             }
         });
         wm.addView(mView, params);
+
     }
 
     @Override

@@ -5,29 +5,11 @@
     android:background="@android:color/transparent">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/tex_station_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        android:textColor="#ffffff" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
-
-    <ImageButton
-        android:id="@+id/bt"
-        android:layout_width="368dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="12dp"
-        android:background="@android:color/transparent"
-        android:filterTouchesWhenObscured="true"
-        android:src="@mipmap/ic_launcher"
-        android:text="click"
-        android:textColor="#ffffff" />
+        android:text="경찰병원"
+        android:textColor="@color/design_default_color_error"
+        android:textSize="24sp" />
 
 </RelativeLayout>

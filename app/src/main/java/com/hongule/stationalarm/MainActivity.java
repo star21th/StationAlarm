@@ -26,9 +26,13 @@ import com.hongule.stationalarm.utility.basic_utility;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
     private String TAG = "MainActivity";
+    private static Timer timer;
+    private boolean _isOverlayOn = false;
     private static final int ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 1;
     int PERMISSION_ALL = 1;
     String[] PERMISSIONS = {
@@ -64,6 +68,24 @@ public class MainActivity extends AppCompatActivity {
                 stopService(new Intent(MainActivity.this, MyService.class));
             }
         });
+        if(timer != null){
+            timer.cancel();
+        }
+        timer = new Timer();
+        TimerTask location_timer = new TimerTask() {
+            @Override
+            public void run() {
+                if(_isOverlayOn){
+                    stopService(new Intent(MainActivity.this, MyService.class));
+                    _isOverlayOn = false;
+                }else{
+                    startService(new Intent(MainActivity.this, MyService.class));
+                    _isOverlayOn = true;
+                }
+            }
+        };
+        timer.schedule(location_timer, 1000, 500);
+
     }
 
     @TargetApi(Build.VERSION_CODES.M)
