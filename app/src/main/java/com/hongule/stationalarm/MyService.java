@@ -50,6 +50,10 @@ public class MyService extends Service {
             public void onClick(View v) {
                 bt.setImageResource(R.mipmap.ic_launcher_round);
                 textView.setText("on click!!");
+
+                Intent dialogIntent = new Intent(getApplication(), MainActivity.class);
+                dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(dialogIntent);
             }
         });
         // btn_img 에 android:filterTouchesWhenObscured="true" 속성 추가하면 터치리스너가 동작한다.
