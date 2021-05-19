@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.myapplication">
+    package="com.hongule.stationalarm">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -11,15 +11,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyApplication"
-        android:resizeableActivity="true"
-        android:supportsPictureInPicture="true">
+        android:theme="@style/Theme.MyApplication">
         <activity android:name=".MainActivity">
-            <layout android:defaultHeight="500dp"
-                android:defaultWidth="600dp"
-                android:gravity="top|end"
-                android:minHeight="450dp"
-                android:minWidth="300dp" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

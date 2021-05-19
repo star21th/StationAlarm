@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.hongule.stationalarm;
 
 import android.app.Service;
 import android.content.Context;

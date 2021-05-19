@@ -1,4 +1,4 @@
-package com.example.myapplication.data;
+package com.hongule.stationalarm.data;
 
 public class location_data {
     public static final String[][] seoul_array= {

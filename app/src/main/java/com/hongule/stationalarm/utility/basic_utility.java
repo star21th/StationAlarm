@@ -1,4 +1,4 @@
-package com.example.myapplication.utility;
+package com.hongule.stationalarm.utility;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
