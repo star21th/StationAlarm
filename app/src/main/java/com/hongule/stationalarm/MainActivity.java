@@ -16,14 +16,17 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.hongule.stationalarm.data.location_data_class;
+import com.hongule.stationalarm.data.location_line_data;
 import com.hongule.stationalarm.utility.basic_utility;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
@@ -31,8 +34,6 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
     private String TAG = "MainActivity";
-    private static Timer timer;
-    private boolean _isOverlayOn = false;
     private static final int ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 1;
     int PERMISSION_ALL = 1;
     String[] PERMISSIONS = {
@@ -51,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
         if (!hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
-        startLocationService();
 
         Button bt_start = (Button) findViewById(R.id.bt_start);
         bt_start.setOnClickListener(new View.OnClickListener() {
@@ -68,23 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 stopService(new Intent(MainActivity.this, MyService.class));
             }
         });
-        if(timer != null){
-            timer.cancel();
-        }
-        timer = new Timer();
-        TimerTask location_timer = new TimerTask() {
-            @Override
-            public void run() {
-                if(_isOverlayOn){
-                    stopService(new Intent(MainActivity.this, MyService.class));
-                    _isOverlayOn = false;
-                }else{
-                    startService(new Intent(MainActivity.this, MyService.class));
-                    _isOverlayOn = true;
-                }
-            }
-        };
-        timer.schedule(location_timer, 1000, 500);
+
 
     }
 
@@ -97,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 // TODO 동의를 얻지 못했을 경우의 처리
 
             } else {
-                startService(new Intent(MainActivity.this, MyService.class));
+                //startService(new Intent(MainActivity.this, MyService.class));
             }
         }
     }
@@ -121,122 +105,22 @@ public class MainActivity extends AppCompatActivity {
                         Uri.parse("package:" + getPackageName()));
                 startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
             } else {
-                startService(new Intent(MainActivity.this, MyService.class));
+                if (Build.VERSION.SDK_INT >= 26) {
+                    startForegroundService(new Intent(MainActivity.this, MyService.class));
+                }
+                else {
+                    startService(new Intent(MainActivity.this, MyService.class));
+                }
+
+                finish();
             }
         } else {
-            startService(new Intent(MainActivity.this, MyService.class));
-        }
-    }
-
-    public void startLocationService() {
-        Double latitude = 0.0;
-        Double longitude = 0.0;
-        String _kind = "";
-
-        // get manager instance
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        // set listener
-        Listener Listener = new Listener();
-        long minTime = 10000;
-        float minDistance = 0;
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            //return;
-        }
-        Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (lastKnownLocation != null) {
-            latitude = lastKnownLocation.getLatitude();
-            longitude = lastKnownLocation.getLongitude();
-            _kind = "1";
-        }
-        lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (lastKnownLocation != null) {
-            latitude = lastKnownLocation.getLatitude();
-            longitude = lastKnownLocation.getLongitude();
-            _kind = "2";
-        }
-        lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        if (lastKnownLocation != null) {
-            latitude = lastKnownLocation.getLatitude();
-            longitude = lastKnownLocation.getLongitude();
-            _kind = "3";
-        }
-        String msg = "Latitude : " + latitude + "\nLongitude:" + longitude;
-        Log.i("GPSLocationService", msg);
-        Date today = Calendar.getInstance().getTime();
-        location_data_class.coord_date = basic_utility.newFormat.format(today);
-        location_data_class.coord_kind = _kind;
-        location_data_class.latitude = String.valueOf(latitude);
-        location_data_class.longitude = String.valueOf(longitude);
-        //  Toast.makeText(getApplicationContext(), msg, 2000).show();
-
-        locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                minTime,
-                minDistance,
-                Listener);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, (LocationListener) Listener);
-        locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, minTime, minDistance, (LocationListener) Listener);
-
-        //Toast.makeText(getApplicationContext(), "Location Service started.\nyou can test using DDMS.", 2000).show();
-    }
-
-    private class Listener implements LocationListener {
-
-        public void onLocationChanged(Location location) {
-            //capture location data sent by current provider
-            Double latitude = 0.0;
-            Double longitude = 0.0;
-            String _kind = "";
-
-            if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
-                _kind = "1";
-                Log.d(TAG + " GPS : ", Double.toString(latitude) + '/' + Double.toString(longitude));
+            if (Build.VERSION.SDK_INT >= 26) {
+                startForegroundService(new Intent(MainActivity.this, MyService.class));
+            }else {
+                startService(new Intent(MainActivity.this, MyService.class));
             }
-
-            if (location.getProvider().equals(LocationManager.NETWORK_PROVIDER)) {
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
-                _kind = "2";
-                Log.d(TAG + " NETWORK : ", Double.toString(latitude) + '/' + Double.toString(longitude));
-            }
-
-            if (location.getProvider().equals(LocationManager.PASSIVE_PROVIDER)) {
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
-                _kind = "3";
-                Log.d(TAG + " PASSIVE : ", Double.toString(latitude) + '/' + Double.toString(longitude));
-            }
-
-            String msg = "Latitude : " + latitude + "\nLongitude:" + longitude;
-            Log.i("GPSLocationService", msg);
-            Date today = Calendar.getInstance().getTime();
-            location_data_class.coord_date = basic_utility.newFormat.format(today);
-            location_data_class.coord_kind = _kind;
-            location_data_class.latitude = String.valueOf(latitude);
-            location_data_class.longitude = String.valueOf(longitude);
-            //  Toast.makeText(getApplicationContext(), msg, 2000).show();
-
+            finish();
         }
-
-        public void onProviderDisabled(String provider) {
-        }
-
-        public void onProviderEnabled(String provider) {
-        }
-
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-
     }
 }

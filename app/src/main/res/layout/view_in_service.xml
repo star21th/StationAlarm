@@ -8,7 +8,7 @@
         android:id="@+id/tex_station_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="경찰병원"
+        android:text="1"
         android:textColor="@color/design_default_color_error"
         android:textSize="24sp" />
 
