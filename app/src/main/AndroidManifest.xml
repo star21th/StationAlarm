@@ -25,6 +25,10 @@
             android:enabled="true"
             android:foregroundServiceType="location"
             android:permission="android.permission.SYSTEM_ALERT_WINDOW" >
+            <intent-filter>
+                <action android:name="com.hongule.stationalarm" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </service>
     </application>
 

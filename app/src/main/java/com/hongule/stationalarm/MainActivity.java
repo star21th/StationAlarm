@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     startService(new Intent(MainActivity.this, MyService.class));
                 }
 
-                finish();
+                //finish();
             }
         } else {
             if (Build.VERSION.SDK_INT >= 26) {
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             }else {
                 startService(new Intent(MainActivity.this, MyService.class));
             }
-            finish();
+            //finish();
         }
     }
 }

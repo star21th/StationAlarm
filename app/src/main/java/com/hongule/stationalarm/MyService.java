@@ -61,7 +61,7 @@ public class MyService extends Service{
     View mView;
     public int select_temp = 0;
     public LocationManager locationManager = null;
-
+    TextView _tex_station_name;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -69,7 +69,28 @@ public class MyService extends Service{
     }
 
     public ArrayList<location_line_data> item_list_object = new ArrayList<>();
-
+    public static final int MESSAGE_1   = 1;
+    public static final int MESSAGE_2   = 2;
+    private final Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message message) {
+            location_check();
+            switch (message.what) {
+                case MESSAGE_1:
+                    try { Thread.sleep(300);} catch (InterruptedException e) {}
+                    _tex_station_name.setText("");
+                    _isOverlayOn = false;
+                    Log.d("star21th210529", "false");
+                    break;
+                case MESSAGE_2:
+                    try { Thread.sleep(300);} catch (InterruptedException e) {}
+                    _tex_station_name.setText(location_data.boardList.get(select_temp).name);
+                    _isOverlayOn = true;
+                    Log.d("star21th210529", "true");
+                    break;
+            }
+        }
+    };
     @Override
     public void onCreate() {
 
@@ -94,7 +115,7 @@ public class MyService extends Service{
         params.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
 
         mView = inflate.inflate(R.layout.view_in_service, null);
-        final TextView _tex_station_name = (TextView) mView.findViewById(R.id.tex_station_name);
+        _tex_station_name = (TextView) mView.findViewById(R.id.tex_station_name);
         _tex_station_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,80 +151,15 @@ public class MyService extends Service{
         TimerTask location_timer = new TimerTask() {
             @Override
             public void run() {
-
-                wm.removeView(mView);
-                location_data.seoul_item();
-                location_check();
                 if (_isOverlayOn) {
+                    Message message = handler.obtainMessage(MESSAGE_1);
+                    handler.sendMessage(message);
 
-                    WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                            /*ViewGroup.LayoutParams.MATCH_PARENT*/300,
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
-                                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
-                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                                    | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                                    | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
-                            PixelFormat.TRANSLUCENT);
-
-                    params.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
-                    mView = inflate.inflate(R.layout.view_in_service, null);
-                    final TextView _tex_station_name = (TextView) mView.findViewById(R.id.tex_station_name);
-                    _tex_station_name.setText("");
-                    _tex_station_name.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent dialogIntent = new Intent(getApplication(), MainActivity.class);
-                            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(dialogIntent);
-                        }
-                    });
-                    Handler mHandler = new Handler(Looper.getMainLooper());
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            // 사용하고자 하는 코드
-
-                            wm.addView(mView, params);
-                        }
-                    }, 0);
-                    _isOverlayOn = false;
-                    Log.d("star21th210529", "false");
                 } else {
 
-                    WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                            /*ViewGroup.LayoutParams.MATCH_PARENT*/300,
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
-                                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
-                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                                    | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                                    | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
-                            PixelFormat.TRANSLUCENT);
+                    Message message = handler.obtainMessage(MESSAGE_2);
+                    handler.sendMessage(message);
 
-                    params.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
-                    mView = inflate.inflate(R.layout.view_in_service, null);
-                    final TextView _tex_station_name = (TextView) mView.findViewById(R.id.tex_station_name);
-                    _tex_station_name.setText(location_data.boardList.get(select_temp).name);
-                    _tex_station_name.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent dialogIntent = new Intent(getApplication(), MainActivity.class);
-                            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(dialogIntent);
-                        }
-                    });
-                    Handler mHandler = new Handler(Looper.getMainLooper());
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            // 사용하고자 하는 코드
-
-                            wm.addView(mView, params);
-                        }
-                    }, 0);
-                    _isOverlayOn = true;
-                    Log.d("star21th210529", "true");
                 }
             }
         };
@@ -359,7 +315,7 @@ public class MyService extends Service{
         location_data_class.coord_kind = _kind;
         location_data_class.latitude = String.valueOf(latitude);
         location_data_class.longitude = String.valueOf(longitude);
-        Toast.makeText(getApplicationContext(), msg, 2000).show();
+        //Toast.makeText(getApplicationContext(), msg, 2000).show();
         //Toast.makeText(getApplicationContext(), "Location Service started.\nyou can test using DDMS.", 2000).show();
     }
     public void startLocationService() {
@@ -406,7 +362,7 @@ public class MyService extends Service{
         location_data_class.coord_kind = _kind;
         location_data_class.latitude = String.valueOf(latitude);
         location_data_class.longitude = String.valueOf(longitude);
-        Toast.makeText(getApplicationContext(), msg, 2000).show();
+        //Toast.makeText(getApplicationContext(), msg, 2000).show();
 
         locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
@@ -428,7 +384,7 @@ public class MyService extends Service{
             Double longitude = 0.0;
             String _kind = "";
 
-            Toast.makeText(MyService.this, "11111111111", 2000).show();
+            //Toast.makeText(MyService.this, "11111111111", 2000).show();
             if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
@@ -457,7 +413,7 @@ public class MyService extends Service{
             location_data_class.coord_kind = _kind;
             location_data_class.latitude = String.valueOf(latitude);
             location_data_class.longitude = String.valueOf(longitude);
-            Toast.makeText(MyService.this, msg, 2000).show();
+            //Toast.makeText(MyService.this, msg, 2000).show();
 /*            try{  //  미수신할때는 반드시 자원해체를 해주어야 한다.
                 locationManager.removeUpdates(Listener);
             } catch (SecurityException ex){
