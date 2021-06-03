@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
             } else {
                 if (Build.VERSION.SDK_INT >= 26) {
-                    startForegroundService(new Intent(MainActivity.this, MyService.class));
+                    startService(new Intent(MainActivity.this, MyService.class));
                 }
                 else {
                     startService(new Intent(MainActivity.this, MyService.class));
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             if (Build.VERSION.SDK_INT >= 26) {
-                startForegroundService(new Intent(MainActivity.this, MyService.class));
+                startService(new Intent(MainActivity.this, MyService.class));
             }else {
                 startService(new Intent(MainActivity.this, MyService.class));
             }
