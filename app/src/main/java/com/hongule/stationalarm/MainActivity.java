@@ -34,10 +34,13 @@ import android.widget.Toast;
 import com.hongule.stationalarm.data.location_data;
 import com.hongule.stationalarm.data.location_data_class;
 import com.hongule.stationalarm.data.location_line_data;
+import com.hongule.stationalarm.data.sort_class;
 import com.hongule.stationalarm.utility.basic_utility;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -59,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
     public LocationManager locationManager = null;
     public ArrayList<location_line_data> item_list_object = new ArrayList<>();
+
+
+    public String location_name;
     PictureInPictureParams params;
     public static final int MESSAGE_1   = 1;
     public static final int MESSAGE_2   = 2;
@@ -77,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case MESSAGE_2:
                     //try { Thread.sleep(300);} catch (InterruptedException e) {}
-                    _tex_station_name.setText(location_data.boardList.get(select_temp).name);
+                    _tex_station_name.setText(location_name);
                     _isOverlayOn = true;
                     //Log.d("star21th210529", "true");
                     break;
@@ -196,20 +202,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void location_check() {
         for (int i = 0; i < location_data.boardList.size(); i++) {
             if (location_data.boardList.get(i).lot >= Double.valueOf(location_data_class.latitude)) {
-                select_temp = i;
                 break;
             }
         }
 
-        for (int i = select_temp - 1; i < select_temp + 1; i++) {
-            if (location_data.boardList.get(i).lon >= Double.valueOf(location_data_class.longitude)) {
-                select_temp = i;
+        ArrayList<sort_class> data = new ArrayList<sort_class>();
+        for (int i = select_temp - 10; i < select_temp + 10; i++) {
+            data.add(new sort_class(location_data.boardList.get(i).name, location_data.boardList.get(i).lon + location_data.boardList.get(i).lot));
+        }
+            /*Test Class 변수 Name 기준 내림차순 정렬하기*/
+            NameDecending nameDecending = new NameDecending();
+            Collections.sort(data, nameDecending);
+
+        Double aaa = Double.valueOf(location_data_class.latitude) + Double.valueOf(location_data_class.longitude);
+        for (int i = 0; i < location_data.boardList.size(); i++) {
+            if (data.get(i).getPoint() >= aaa && data.get(i+1).getPoint() < aaa) {
+                location_name = data.get(i).getName();
                 break;
             }
-            select_temp = i;
         }
+
 
     }
+    /*Test객체의 name을 기준으로 내림차순 정렬하기*/
+    class NameDecending implements Comparator<sort_class> {
+
+        @Override
+        public int compare(sort_class a, sort_class b) {
+
+            String temp1 = a.getName();
+            String temp2 = b.getName();
+
+            return temp2.compareTo(temp1);
+            /*return b.getName().compareTo(a.getName());*/
+        }
+    }
+
+    /*Test객체의 Point를 기준으로 내림차순 정렬하기*/
+    class PointDecending implements Comparator<sort_class> {
+
+        @Override
+        public int compare(sort_class a, sort_class b) {
+            Double temp1 = a.getPoint();
+            Double temp2 = b.getPoint();
+
+            return temp2.compareTo(temp1);
+        }
+    }
+
     public void startLocationService() {
         Double latitude = 0.0;
         Double longitude = 0.0;
