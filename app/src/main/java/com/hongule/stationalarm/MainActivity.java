@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hongule.stationalarm.common.global;
 import com.hongule.stationalarm.data.location_data;
 import com.hongule.stationalarm.data.location_data_class;
 import com.hongule.stationalarm.data.location_line_data;
@@ -49,15 +50,17 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private String TAG = "MainActivity";
-    private static Timer timer;
+    private final Timer mTimer = new Timer();
+    private TimerTask mTimerTask;
     private boolean _isOverlayOn = false;
     LinearLayout _lin_background;
     LinearLayout _lin_title;
+    LinearLayout _lin_button;
+    LinearLayout _lin_1;
     TextView _tex_title;
     TextView _tex_station_name;
     Button _but_pip;
     Button _but_config;
-    LinearLayout _lin_button;
     public int select_temp = 0;
     private static final int ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 1;
     int PERMISSION_ALL = 1;
@@ -68,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
     public LocationManager locationManager = null;
     public ArrayList<location_line_data> item_list_object = new ArrayList<>();
-
 
     public String location_name;
     PictureInPictureParams params;
@@ -82,38 +84,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             location_check();
             switch (message.what) {
                 case MESSAGE_1:
-                    //try { Thread.sleep(300);} catch (InterruptedException e) {}
                     _tex_station_name.setText("");
                     _isOverlayOn = false;
-                    //Log.d("star21th210529", "false");
                     break;
                 case MESSAGE_2:
-                    //try { Thread.sleep(300);} catch (InterruptedException e) {}
                     _tex_station_name.setText(location_name);
                     _isOverlayOn = true;
-                    //Log.d("star21th210529", "true");
                     break;
                 case MESSAGE_3:
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                     _lin_background.setBackgroundColor(Color.parseColor("#00000000"));
                     _lin_title.setBackgroundColor(Color.parseColor("#00000000"));
                     _tex_title.setTextColor(Color.parseColor("#2196F3"));
                     _lin_button.setVisibility(View.GONE);
+                    _lin_1.setVisibility(View.GONE);
+                    if (mTimerTask != null)
+                    mTimerTask.cancel();
+                    mTimerTask = createTimerTask();
+                    mTimer.schedule(mTimerTask, 1000, 500);
                     break;
                 case MESSAGE_4:
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                     _lin_background.setBackgroundColor(Color.parseColor("#ffffff"));
                     _lin_title.setBackgroundColor(Color.parseColor("#2263a5"));
                     _tex_title.setTextColor(Color.parseColor("#ffffff"));
                     _lin_button.setVisibility(View.VISIBLE);
+                    _lin_1.setVisibility(View.VISIBLE);
+                    if (mTimerTask != null)
+                        mTimerTask.cancel();
                     break;
             }
         }
@@ -126,6 +122,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (!hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
+
+        global.sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Display display=getWindowManager().getDefaultDisplay();
@@ -147,13 +145,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         _tex_title = (TextView) findViewById(R.id.tex_title);
         _tex_station_name = (TextView) findViewById(R.id.tex_station_name);
         _lin_button = (LinearLayout) findViewById(R.id.lin_button);
+        _lin_1 = (LinearLayout) findViewById(R.id.lin_1);
         _but_pip = (Button) findViewById(R.id.but_pip);
         //_but_pip.setVisibility(View.GONE);
         _but_pip.setOnClickListener(this);
         _but_config = (Button) findViewById(R.id.but_config);
         _but_config.setOnClickListener(this);
-        timer = new Timer();
-        TimerTask location_timer = new TimerTask() {
+        mTimerTask = createTimerTask();
+        mTimer.schedule(mTimerTask, 1000, 500);
+    }
+    private TimerTask createTimerTask() {
+        TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
                 if (_isOverlayOn) {
@@ -168,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         };
-        timer.schedule(location_timer, 1000, 500);
+        return timerTask;
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -251,8 +253,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ArrayList<sort_class> data = new ArrayList<sort_class>();
         for (int i = select_temp - 10; i < select_temp + 10; i++) {
-            if(i<0) i=0;
-            if(i>location_data.boardList.size()) i= location_data.boardList.size();
+            if( i < 0 ) i=0;
+            if( i > location_data.boardList.size() ) i= location_data.boardList.size();
             data.add(new sort_class(location_data.boardList.get(i).name, location_data.boardList.get(i).lon + location_data.boardList.get(i).lot));
         }
         PointDecending pointDecending = new PointDecending();
