@@ -209,6 +209,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ArrayList<sort_class> data = new ArrayList<sort_class>();
         for (int i = select_temp - 10; i < select_temp + 10; i++) {
+            if(i<0) i=0;
+            if(i>location_data.boardList.size()) i= location_data.boardList.size();
             data.add(new sort_class(location_data.boardList.get(i).name, location_data.boardList.get(i).lon + location_data.boardList.get(i).lot));
         }
         PointDecending pointDecending = new PointDecending();
