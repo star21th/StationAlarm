@@ -202,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void location_check() {
         for (int i = 0; i < location_data.boardList.size(); i++) {
             if (location_data.boardList.get(i).lot >= Double.valueOf(location_data_class.latitude)) {
+                select_temp = i;
                 break;
             }
         }
@@ -210,13 +211,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (int i = select_temp - 10; i < select_temp + 10; i++) {
             data.add(new sort_class(location_data.boardList.get(i).name, location_data.boardList.get(i).lon + location_data.boardList.get(i).lot));
         }
-            /*Test Class 변수 Name 기준 내림차순 정렬하기*/
-            NameDecending nameDecending = new NameDecending();
-            Collections.sort(data, nameDecending);
+        PointDecending pointDecending = new PointDecending();
+        Collections.sort(data, pointDecending);
 
         Double aaa = Double.valueOf(location_data_class.latitude) + Double.valueOf(location_data_class.longitude);
-        for (int i = 0; i < location_data.boardList.size(); i++) {
-            if (data.get(i).getPoint() >= aaa && data.get(i+1).getPoint() < aaa) {
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(i).getPoint() <= aaa) {
                 location_name = data.get(i).getName();
                 break;
             }
