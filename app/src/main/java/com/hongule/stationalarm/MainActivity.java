@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.PictureInPictureParams;
 import android.content.Context;
@@ -28,6 +29,7 @@ import android.util.Rational;
 import android.view.Display;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,9 +51,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String TAG = "MainActivity";
     private static Timer timer;
     private boolean _isOverlayOn = false;
+    LinearLayout _lin_background;
+    LinearLayout _lin_title;
+    TextView _tex_title;
     TextView _tex_station_name;
     Button _but_pip;
     Button _but_config;
+    LinearLayout _lin_button;
     public int select_temp = 0;
     private static final int ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 1;
     int PERMISSION_ALL = 1;
@@ -93,7 +99,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    _but_pip.setBackgroundColor(Color.parseColor("#ecf5fa"));
+                    _lin_background.setBackgroundColor(Color.parseColor("#00000000"));
+                    _lin_title.setBackgroundColor(Color.parseColor("#00000000"));
+                    _tex_title.setTextColor(Color.parseColor("#2196F3"));
+                    _lin_button.setVisibility(View.GONE);
                     break;
                 case MESSAGE_4:
                     try {
@@ -101,7 +110,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    _but_pip.setBackgroundColor(Color.parseColor("#aaaaaa"));
+                    _lin_background.setBackgroundColor(Color.parseColor("#ffffff"));
+                    _lin_title.setBackgroundColor(Color.parseColor("#2263a5"));
+                    _tex_title.setTextColor(Color.parseColor("#ffffff"));
+                    _lin_button.setVisibility(View.VISIBLE);
                     break;
             }
         }
@@ -130,7 +142,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startLocationService();
         location_data.seoul_item();
         location_check();
+        _lin_background = (LinearLayout) findViewById(R.id.lin_background);
+        _lin_title = (LinearLayout) findViewById(R.id.lin_title);
+        _tex_title = (TextView) findViewById(R.id.tex_title);
         _tex_station_name = (TextView) findViewById(R.id.tex_station_name);
+        _lin_button = (LinearLayout) findViewById(R.id.lin_button);
         _but_pip = (Button) findViewById(R.id.but_pip);
         //_but_pip.setVisibility(View.GONE);
         _but_pip.setOnClickListener(this);
@@ -170,7 +186,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
-
+    @Override
+    public void onPause() {
+        // If called while in PIP mode, do not pause playback
+        super.onPause();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (isInPictureInPictureMode()) {
+                Message message = handler.obtainMessage(MESSAGE_3);
+                handler.sendMessage(message);
+            } else {
+                Message message = handler.obtainMessage(MESSAGE_4);
+                handler.sendMessage(message);
+            }
+        }
+    }
+    @Override
+    public void onResume() {
+        // If called while in PIP mode, do not pause playback
+        super.onResume();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if(isInPictureInPictureMode()) {
+                Message message = handler.obtainMessage(MESSAGE_3);
+                handler.sendMessage(message);
+            } else {
+                Message message = handler.obtainMessage(MESSAGE_4);
+                handler.sendMessage(message);
+            }
+        }
+    }
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        return;
+    }
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -189,13 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
         if(isInPictureInPictureMode) {
-            Message message = handler.obtainMessage(MESSAGE_3);
-            handler.sendMessage(message);
-            Toast.makeText(this, "PIP Mode", Toast.LENGTH_SHORT).show();
         } else {
-            Message message = handler.obtainMessage(MESSAGE_4);
-            handler.sendMessage(message);
-            Toast.makeText(this, "not PIP Mode", Toast.LENGTH_SHORT).show();
         }
     }
 
